@@ -13,7 +13,7 @@ namespace AuthenticodeExaminer
             Online
         }
 
-        public static unsafe bool IsFileSignatureValid(string file, RevocationChecking revocationChecking = RevocationChecking.Offline)
+        public static unsafe bool IsFileSignatureValid(string file, out int result, RevocationChecking revocationChecking = RevocationChecking.Offline)
         {
             var pathPtr = Marshal.StringToHGlobalUni(file);
             try
@@ -46,7 +46,8 @@ namespace AuthenticodeExaminer
                 trust->trustUnion.pFile = fileInfo;
                 trust->trustUnion.pFile->cbStruct = (uint)Marshal.SizeOf<WINTRUST_FILE_INFO>();
                 trust->trustUnion.pFile->pcwszFilePath = pathPtr;
-                return Wintrust.WinVerifyTrustEx(new IntPtr(-1), KnownGuids.WINTRUST_ACTION_GENERIC_VERIFY_V2, trust) == 0;
+                result = Wintrust.WinVerifyTrustEx(new IntPtr(-1), KnownGuids.WINTRUST_ACTION_GENERIC_VERIFY_V2, trust);
+                return result == 0;
             }
             finally
             {

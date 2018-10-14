@@ -23,7 +23,7 @@ namespace sample
                 return;
             }
 
-            var hasGoodSignature = FileSignatureVerifier.IsFileSignatureValid(path);
+            var hasGoodSignature = FileSignatureVerifier.IsFileSignatureValid(path, out _);
             Console.WriteLine($"File signature is good: {(hasGoodSignature ? "Yes" : "No")}");
 
             foreach (var signature in results)

@@ -3,6 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Authors>Kevin Jones</Authors>
+    <PackageTags>authenticode;keyvault;codesign</PackageTags>
+    <PackageProjectUrl>https://github.com/vcsjones/AuthenticodeExaminer</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <RuntimeIdentifiers>win10-x64;win-10-x86</RuntimeIdentifiers>
+    <Description>A Windows library for verifying and inspecting Authenticode signed files.</Description>
   </PropertyGroup>
 
   <ItemGroup>
