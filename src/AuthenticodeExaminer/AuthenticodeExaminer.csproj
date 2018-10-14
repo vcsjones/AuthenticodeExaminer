@@ -6,6 +6,7 @@
     <Authors>Kevin Jones</Authors>
     <PackageTags>authenticode;keyvault;codesign</PackageTags>
     <PackageProjectUrl>https://github.com/vcsjones/AuthenticodeExaminer</PackageProjectUrl>
+    <PackageVersion>0.1.0</PackageVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
