@@ -22,7 +22,11 @@ namespace sample
                 Console.WriteLine("File is not signed.");
                 return;
             }
-            foreach(var signature in results)
+
+            var hasGoodSignature = FileSignatureVerifier.IsFileSignatureValid(path);
+            Console.WriteLine($"File signature is good: {(hasGoodSignature ? "Yes" : "No")}");
+
+            foreach (var signature in results)
             {
                 DumpSignatureDetails(signature);
             }
