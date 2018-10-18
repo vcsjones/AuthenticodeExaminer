@@ -26,6 +26,12 @@ namespace AuthenticodeExaminer
         /// </summary>
         public string FileLink { get; }
 
+        /// <summary>
+        /// Constructs an empty instance of <see cref="PublisherInformation"/>.
+        /// </summary>
+        public PublisherInformation()
+        {
+        }
 
         /// <summary>
         /// Constructs a new instance of <see cref="PublisherInformation"/>

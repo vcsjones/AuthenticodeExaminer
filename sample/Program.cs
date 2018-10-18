@@ -51,21 +51,19 @@ namespace sample
             Console.WriteLine();
             Console.WriteLine("Signature:");
             Console.WriteLine($"Digest algorithm: {signature.DigestAlgorithmName}");
-            PublisherInformation info = signature.GetPublisherInformation();
-            if (info == null)
+            if (signature.PublisherInformation == null)
             {
                 Console.WriteLine("Publisher Site: No publisher information");
                 Console.WriteLine("Publisher Description: No publisher information");
             }
             else
             {
-                Console.WriteLine($"Publisher Site: {info.UrlLink}");
-                Console.WriteLine($"Publisher Description: {info.Description}");
+                Console.WriteLine($"Publisher Site: {signature.PublisherInformation.UrlLink}");
+                Console.WriteLine($"Publisher Description: {signature.PublisherInformation.Description}");
             }
             Console.WriteLine();
 
-            var timestamps = signature.GetTimestampSignatures();
-            foreach (var timestamp in timestamps)
+            foreach (var timestamp in signature.TimestampSignatures)
             {
                 if (timestamp != null)
                 {
