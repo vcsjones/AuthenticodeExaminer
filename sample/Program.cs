@@ -9,7 +9,7 @@ namespace sample
         static int Main(string[] args)
         {
             Console.Write("Type a program path: ");
-            var path = @"C:\Users\KevinJones\Desktop\foo.dll"; //Console.ReadLine();
+            var path = Console.ReadLine();
             if (!File.Exists(path))
             {
                 Console.WriteLine("File doesn't exist.");

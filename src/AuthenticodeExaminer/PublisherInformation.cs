@@ -27,6 +27,15 @@ namespace AuthenticodeExaminer
         public string FileLink { get; }
 
         /// <summary>
+        /// Indicates if the current instance of <see cref="PublisherInformation"/> contains
+        /// any non-empty values.
+        /// </summary>
+        public bool IsEmpty =>
+            string.IsNullOrWhiteSpace(Description) &&
+            string.IsNullOrWhiteSpace(UrlLink) &&
+            string.IsNullOrWhiteSpace(FileLink);
+
+        /// <summary>
         /// Constructs an empty instance of <see cref="PublisherInformation"/>.
         /// </summary>
         public PublisherInformation()
@@ -59,17 +68,17 @@ namespace AuthenticodeExaminer
                 using (structBuffer)
                 {
                     var info = Marshal.PtrToStructure<SPC_SP_OPUS_INFO>(structBuffer.DangerousGetHandle());
-                    Description = info.pwszProgramName;
+                    Description = info.pwszProgramName?.Trim();
                     if (info.pMoreInfo != null)
                     {
                         var moreInfo = info.pMoreInfo;
                         switch (moreInfo->dwLinkChoice)
                         {
                             case SpcLinkChoice.SPC_URL_LINK_CHOICE:
-                                UrlLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszUrl);
+                                UrlLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszUrl).Trim();
                                 break;
                             case SpcLinkChoice.SPC_FILE_LINK_CHOICE:
-                                FileLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszFile);
+                                FileLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszFile).Trim();
                                 break;
                         }
                     }
