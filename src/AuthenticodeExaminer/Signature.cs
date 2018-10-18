@@ -20,6 +20,29 @@ namespace AuthenticodeExaminer
         public X509Certificate2 Certificate { get; protected set; }
         public SignatureKind Kind { get; protected set; }
         public X509Certificate2Collection AdditionalCertificates { get; protected set; }
+        public byte[] Content { get; protected set; }
+
+        public HashAlgorithmName DigestAlgorithmName
+        {
+            get
+            {
+                switch (DigestAlgorithm.Value)
+                {
+                    case KnownOids.MD5:
+                        return HashAlgorithmName.MD5;
+                    case KnownOids.SHA1:
+                        return HashAlgorithmName.SHA1;
+                    case KnownOids.SHA256:
+                        return HashAlgorithmName.SHA256;
+                    case KnownOids.SHA384:
+                        return HashAlgorithmName.SHA384;
+                    case KnownOids.SHA512:
+                        return HashAlgorithmName.SHA512;
+                    default:
+                        return default;
+                }
+            }
+        }
 
         internal byte[] ReadBlob(CRYPTOAPI_BLOB blob)
         {
@@ -188,8 +211,9 @@ namespace AuthenticodeExaminer
 
     public class Signature : SignatureBase
     {
-        internal Signature(SignatureKind kind, CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle)
+        internal Signature(SignatureKind kind, CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle, byte[] content)
         {
+            Content = content;
             Kind = kind;
             InitFromHandles(messageHandle, signerHandle);
         }
@@ -245,6 +269,18 @@ namespace AuthenticodeExaminer
                 {
                     msgHandle.Dispose();
                     throw new InvalidOperationException("Unable to read signature.");
+                }
+                var contentSize = 0u;
+                if (Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, LocalBufferSafeHandle.Zero, ref contentSize))
+                {
+                    using (var contentHandle = LocalBufferSafeHandle.Alloc(contentSize))
+                    {
+                        if (Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, contentHandle, ref contentSize))
+                        {
+                            Content = new byte[contentSize];
+                            Marshal.Copy(contentHandle.DangerousGetHandle(), Content, 0, (int)contentSize);
+                        }
+                    }
                 }
                 var signerSize = 0u;
                 if (!Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_SIGNER_INFO_PARAM, 0, LocalBufferSafeHandle.Zero, ref signerSize))

@@ -14,5 +14,7 @@ namespace AuthenticodeExaminer
         IReadOnlyList<ISignature> GetNestedSignatures();
         SignatureKind Kind { get; }
         X509Certificate2Collection AdditionalCertificates { get; }
+        HashAlgorithmName DigestAlgorithmName { get; }
+        byte[] Content { get;  }
     }
 }

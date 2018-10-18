@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 
 namespace AuthenticodeExaminer
 {
-    public class SignatureExtractor
+    public static class SignatureTreeInspector
     {
-        public IReadOnlyList<ISignature> Extract(string filePath)
+        public static IReadOnlyList<ISignature> Extract(string filePath)
         {
             EncodingType encodingType;
             CryptQueryContentType contentType;
@@ -36,7 +36,7 @@ namespace AuthenticodeExaminer
             }
         }
 
-        private unsafe IReadOnlyList<ISignature> GetSignatures(CryptMsgSafeHandle messageHandle)
+        private static unsafe IReadOnlyList<ISignature> GetSignatures(CryptMsgSafeHandle messageHandle)
         {
             var countSize = 0u;
             if (!Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_SIGNER_COUNT_PARAM, 0, LocalBufferSafeHandle.Zero, ref countSize))
@@ -53,6 +53,19 @@ namespace AuthenticodeExaminer
                 signerCount = (uint)Marshal.ReadInt32(countHandle.DangerousGetHandle());
             }
             var signatures = new List<ISignature>();
+            var contentSize = 0u;
+            byte[] content = null;
+            if (Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, LocalBufferSafeHandle.Zero, ref contentSize))
+            {
+                using (var contentHandle = LocalBufferSafeHandle.Alloc(contentSize))
+                {
+                    if (Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, contentHandle, ref contentSize))
+                    {
+                        content = new byte[contentSize];
+                        Marshal.Copy(contentHandle.DangerousGetHandle(), content, 0, (int)contentSize);
+                    }
+                }
+            }
             for (var i = 0u; i < signerCount; i++)
             {
                 var signerSize = 0u;
@@ -66,7 +79,7 @@ namespace AuthenticodeExaminer
                     {
                         continue;
                     }
-                    var signature = new Signature(SignatureKind.Signature, messageHandle, signerHandle);
+                    var signature = new Signature(SignatureKind.Signature, messageHandle, signerHandle, content);
                     signatures.Add(signature);
                 }
             }

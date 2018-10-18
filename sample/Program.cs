@@ -6,99 +6,79 @@ namespace sample
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             Console.Write("Type a program path: ");
-            var path = Console.ReadLine();
+            var path = @"C:\Users\KevinJones\Desktop\foo.dll"; //Console.ReadLine();
             if (!File.Exists(path))
             {
                 Console.WriteLine("File doesn't exist.");
-                return;
+                return 1;
             }
-            var extractor = new SignatureExtractor();
-            var results = extractor.Extract(path);
-            if (results.Count == 0)
+            var extractor = new FileInspector(path);
+            var validationResult = extractor.Validate();
+            switch(validationResult)
             {
-                Console.WriteLine("File is not signed.");
-                return;
+                case SignatureCheckResult.Valid:
+                    Console.WriteLine("The file is valid.");
+                    break;
+                case SignatureCheckResult.NoSignature:
+                    Console.WriteLine("The file is not signed.");
+                    return 1;
+                case SignatureCheckResult.BadDigest:
+                    Console.WriteLine("The file's signature is not valid.");
+                    return 1;
+                default:
+                    Console.WriteLine($"The file is not valid: {validationResult}");
+                    return 1;
             }
 
-            var hasGoodSignature = FileSignatureVerifier.IsFileSignatureValid(path, out _);
-            Console.WriteLine($"File signature is good: {(hasGoodSignature ? "Yes" : "No")}");
-
-            foreach (var signature in results)
+            var signatures = extractor.GetSignatures();
+            foreach (var signature in signatures)
             {
                 DumpSignatureDetails(signature);
             }
+            return 0;
         }
 
-        static void DumpSignatureDetails(ISignature signature, int level = 0)
+        static void DumpSignatureDetails(ISignature signature)
         {
-            void WriteLine(string message)
-            {
-                string indent = new string(' ', level * 4);
-                Console.Write(indent);
-                Console.WriteLine(message);
-            }
-            WriteLine("Certificate:");
-            WriteLine($"Signer: {signature.Certificate.Subject}");
-            WriteLine($"Issuer: {signature.Certificate.Issuer}");
-            WriteLine($"Not Before: {signature.Certificate.NotBefore}");
-            WriteLine($"Not After: {signature.Certificate.NotAfter}");
+            Console.WriteLine("Signing Certificate:");
+            Console.WriteLine($"Signer: {signature.Certificate.Subject}");
+            Console.WriteLine($"Issuer: {signature.Certificate.Issuer}");
+            Console.WriteLine($"Not Before: {signature.Certificate.NotBefore}");
+            Console.WriteLine($"Not After: {signature.Certificate.NotAfter}");
             Console.WriteLine();
-            WriteLine("Signature:");
-
-            if (signature.Kind == SignatureKind.Signature || signature.Kind == SignatureKind.NestedSignature)
+            Console.WriteLine("Signature:");
+            Console.WriteLine($"Digest algorithm: {signature.DigestAlgorithmName}");
+            PublisherInformation info = signature.GetPublisherInformation();
+            if (info == null)
             {
-                PublisherInformation info = null;
-                foreach (var attribute in signature.SignedAttributes)
-                {
-                    if (attribute.Oid.Value == KnownOids.OpusInfo)
-                    {
-                        info = new PublisherInformation(attribute.Values[0]);
-                        break;
-                    }
-                }
-                if (info == null)
-                {
-                    WriteLine("Publisher Site: No publisher information");
-                    WriteLine("Publisher Description: No publisher information");
-                }
-                else
-                {
-                    WriteLine($"Publisher Site: {info.UrlLink}");
-                    WriteLine($"Publisher Description: {info.Description}");
-                }
+                Console.WriteLine("Publisher Site: No publisher information");
+                Console.WriteLine("Publisher Description: No publisher information");
             }
-            else if (signature.Kind == SignatureKind.Rfc3161Timestamp || signature.Kind == SignatureKind.AuthenticodeTimestamp)
+            else
             {
-                SigningTime time = null;
-                foreach (var attribute in signature.SignedAttributes)
-                {
-                    if (attribute.Oid.Value == KnownOids.SigningTime)
-                    {
-                        time = new SigningTime(attribute.Values[0]);
-                        break;
-                    }
-                }
-                if (time == null)
-                {
-                    WriteLine("Timestamp does not contain a signing time.");
-                }
-                else
-                {
-                    WriteLine($"Timestamp time: {time.Time}");
-                }
+                Console.WriteLine($"Publisher Site: {info.UrlLink}");
+                Console.WriteLine($"Publisher Description: {info.Description}");
             }
-
-            WriteLine($"Kind: {signature.Kind}");
-            Console.WriteLine();
             Console.WriteLine();
 
-            foreach (var nested in signature.GetNestedSignatures())
+            var timestamp = signature.GetTimestampSignature();
+            if (timestamp != null)
             {
-                DumpSignatureDetails(nested, level + 1);
+                Console.WriteLine("\tTimestamp Certificate:");
+                Console.WriteLine($"\tSigner: {timestamp.Certificate.Subject}");
+                Console.WriteLine($"\tIssuer: {timestamp.Certificate.Issuer}");
+                Console.WriteLine($"\tNot Before: {timestamp.Certificate.NotBefore}");
+                Console.WriteLine($"\tNot After: {timestamp.Certificate.NotAfter}");
+                Console.WriteLine();
+                Console.WriteLine($"\tTimestamp Time: {(timestamp.GetTimestampSigningTime()?.ToString() ?? "Unknown")}");
+                Console.WriteLine();
             }
+
+            Console.WriteLine();
+            Console.WriteLine(new string('-', 30));
         }
     }
 }
