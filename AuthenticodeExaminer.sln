@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B9EB8146-D425-4D6C-9F1D-F911B842ABFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticodeExaminer", "src\AuthenticodeExaminer\AuthenticodeExaminer.csproj", "{3984B7D2-C891-4B49-8FFC-A9705C81ED67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticodeExaminer", "src\AuthenticodeExaminer\AuthenticodeExaminer.csproj", "{3984B7D2-C891-4B49-8FFC-A9705C81ED67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sample", "sample\sample.csproj", "{90734C54-24C6-4A5A-A57F-76F73D1CB57D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sample", "sample\sample.csproj", "{90734C54-24C6-4A5A-A57F-76F73D1CB57D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,9 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3984B7D2-C891-4B49-8FFC-A9705C81ED67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -47,7 +44,13 @@ Global
 		{90734C54-24C6-4A5A-A57F-76F73D1CB57D}.Release|x86.ActiveCfg = Release|Any CPU
 		{90734C54-24C6-4A5A-A57F-76F73D1CB57D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3984B7D2-C891-4B49-8FFC-A9705C81ED67} = {B9EB8146-D425-4D6C-9F1D-F911B842ABFA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1D0FB1FA-554A-4B38-8368-7747DB0439FA}
 	EndGlobalSection
 EndGlobal

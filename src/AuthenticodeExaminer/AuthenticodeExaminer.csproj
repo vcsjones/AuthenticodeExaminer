@@ -12,10 +12,12 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
     <Description>A Windows library for verifying and inspecting Authenticode signed files.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.1" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="4.5.0" />
+    <PackageReference Include="System.Memory" Version="4.5.1" />
   </ItemGroup>
 </Project>

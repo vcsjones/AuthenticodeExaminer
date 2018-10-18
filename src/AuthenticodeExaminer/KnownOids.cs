@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AuthenticodeExaminer
 {
-    public static class KnownOids
+    internal static class KnownOids
     {
         public static class X509Algorithms
         {

@@ -395,4 +395,11 @@ namespace AuthenticodeExaminer.Interop
         public uint dwValueType;
         public CRYPTOAPI_BLOB Value;
     }
+
+    [type: StructLayout(LayoutKind.Sequential)]
+    internal struct CRYPT_SEQUENCE_OF_ANY
+    {
+        public uint cValue;
+        public unsafe CRYPTOAPI_BLOB* rgValue;
+    }
 }

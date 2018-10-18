@@ -4,16 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace AuthenticodeExaminer
 {
-    public static class FileSignatureVerifier
-    {
-        public enum RevocationChecking
-        {
-            None,
-            Offline,
-            Online
-        }
 
-        public static unsafe bool IsFileSignatureValid(string file, out int result, RevocationChecking revocationChecking = RevocationChecking.Offline)
+    internal static class FileSignatureVerifier
+    {
+        public static unsafe int IsFileSignatureValid(string file, RevocationChecking revocationChecking)
         {
             var pathPtr = Marshal.StringToHGlobalUni(file);
             try
@@ -42,12 +36,13 @@ namespace AuthenticodeExaminer
                 trust->dwUIContext = WinTrustUIContext.WTD_UICONTEXT_EXECUTE;
                 trust->dwUnionChoice = WinTrustUnionChoice.WTD_CHOICE_FILE;
                 trust->fdwRevocationChecks = revocationFlags;
-                trust->trustUnion = new WINTRUST_DATA_UNION();
-                trust->trustUnion.pFile = fileInfo;
+                trust->trustUnion = new WINTRUST_DATA_UNION
+                {
+                    pFile = fileInfo
+                };
                 trust->trustUnion.pFile->cbStruct = (uint)Marshal.SizeOf<WINTRUST_FILE_INFO>();
                 trust->trustUnion.pFile->pcwszFilePath = pathPtr;
-                result = Wintrust.WinVerifyTrustEx(new IntPtr(-1), KnownGuids.WINTRUST_ACTION_GENERIC_VERIFY_V2, trust);
-                return result == 0;
+                return Wintrust.WinVerifyTrustEx(new IntPtr(-1), KnownGuids.WINTRUST_ACTION_GENERIC_VERIFY_V2, trust);
             }
             finally
             {
