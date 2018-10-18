@@ -3,20 +3,6 @@
 namespace AuthenticodeExaminer
 {
     /// <summary>
-    /// Indicates the result when validating an Authenticode signed file.
-    /// </summary>
-    public enum SignatureCheckResult : int
-    {
-        Valid = 0,
-        NoSignature = unchecked((int)0x800b0100), //TRUST_E_NOSIGNATURE
-        BadDigest = unchecked((int)0x80096010), //TRUST_E_BAD_DIGEST
-        UnknownProvider = unchecked((int)0x800b0001), //TRUST_E_PROVIDER_UNKNOWN
-        UntrustedRoot = unchecked((int)0x800b0109), //CERT_E_UNTRUSTEDROOT
-        ExplicitDistrust = unchecked((int)0x800b0111), //TRUST_E_EXPLICIT_DISTRUST
-    }
-
-
-    /// <summary>
     /// Inspects a file for Authenticode signatures.
     /// </summary>
     public class FileInspector
@@ -50,10 +36,14 @@ namespace AuthenticodeExaminer
         /// Gets an enumeration of Authenticode signatures for the file.
         /// </summary>
         /// <returns>An enumeration of signatures.</returns>
-        public IEnumerable<ISignature> GetSignatures()
+        public IEnumerable<AuthenticodeSignature> GetSignatures()
         {
             var signatures = SignatureTreeInspector.Extract(_filePath);
-            return signatures.VisitAll(SignatureKind.AnySignature, true);
+            var allSignatures = signatures.VisitAll(SignatureKind.AnySignature, true);
+            foreach(var signature in allSignatures)
+            {
+                yield return new AuthenticodeSignature(signature);
+            }
         }
     }
 }

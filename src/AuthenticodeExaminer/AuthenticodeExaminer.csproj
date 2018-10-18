@@ -12,6 +12,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
     <Description>A Windows library for verifying and inspecting Authenticode signed files.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

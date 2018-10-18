@@ -10,18 +10,30 @@ using System.Collections.Generic;
 
 namespace AuthenticodeExaminer
 {
-    public abstract class SignatureBase : ISignature
+    /// <summary>
+    /// An abstract class for different signature implementations.
+    /// </summary>
+    public abstract class CmsSignatureBase : ICmsSignature
     {
+        /// <inheritdoc/>
         public Oid DigestAlgorithm { get; protected set; }
+        /// <inheritdoc/>
         public Oid HashEncryptionAlgorithm { get; protected set; }
-        public List<CryptographicAttributeObject> UnsignedAttributes { get; protected set; }
-        public List<CryptographicAttributeObject> SignedAttributes { get; protected set; }
+        /// <inheritdoc/>
+        public IReadOnlyList<CryptographicAttributeObject> UnsignedAttributes { get; protected set; }
+        /// <inheritdoc/>
+        public IReadOnlyList<CryptographicAttributeObject> SignedAttributes { get; protected set; }
+        /// <inheritdoc/>
         public byte[] SerialNumber { get; protected set; }
+        /// <inheritdoc/>
         public X509Certificate2 Certificate { get; protected set; }
+        /// <inheritdoc/>
         public SignatureKind Kind { get; protected set; }
+        /// <inheritdoc/>
         public X509Certificate2Collection AdditionalCertificates { get; protected set; }
+        /// <inheritdoc/>
         public byte[] Content { get; protected set; }
-
+        /// <inheritdoc/>
         public HashAlgorithmName DigestAlgorithmName
         {
             get
@@ -70,7 +82,7 @@ namespace AuthenticodeExaminer
             return collection;
         }
 
-        protected X509Certificate2 FindCertificate(X509IssuerSerial issuerSerial, X509Certificate2Collection certificateCollection)
+        private protected X509Certificate2 FindCertificate(X509IssuerSerial issuerSerial, X509Certificate2Collection certificateCollection)
         {
             var byDN = certificateCollection.Find(X509FindType.FindByIssuerDistinguishedName, issuerSerial.IssuerName, false);
             if (byDN.Count < 1)
@@ -85,7 +97,7 @@ namespace AuthenticodeExaminer
             return bySerial[0];
         }
 
-        protected X509Certificate2 FindCertificate(string keyId, X509Certificate2Collection certificateCollection)
+        private protected X509Certificate2 FindCertificate(string keyId, X509Certificate2Collection certificateCollection)
         {
             var byKeyId = certificateCollection.Find(X509FindType.FindBySubjectKeyIdentifier, keyId, false);
             if (byKeyId.Count != 1)
@@ -95,7 +107,7 @@ namespace AuthenticodeExaminer
             return byKeyId[0];
         }
 
-        internal X509Certificate2Collection GetCertificatesFromMessage(CryptMsgSafeHandle handle)
+        private protected X509Certificate2Collection GetCertificatesFromMessage(CryptMsgSafeHandle handle)
         {
             var size = (uint)Marshal.SizeOf<uint>();
             var certs = new X509Certificate2Collection();
@@ -134,14 +146,21 @@ namespace AuthenticodeExaminer
             return certs;
         }
 
-        public abstract IReadOnlyList<ISignature> GetNestedSignatures();
+        /// <inheritdoc />
+        public abstract IReadOnlyList<ICmsSignature> GetNestedSignatures();
     }
 
-    public class AuthenticodeSignature : SignatureBase
+    /// <summary>
+    /// A class representing a Authenticode timestamp signature.
+    /// </summary>
+    public sealed class AuthenticodeTimestampCmsSignature : CmsSignatureBase
     {
-        public ISignature OwningSignature { get; }
+        /// <summary>
+        /// Gets the signature that owns this timestamp signature.
+        /// </summary>
+        public ICmsSignature OwningSignature { get; }
 
-        public unsafe AuthenticodeSignature(AsnEncodedData data, ISignature owningSignature)
+        internal unsafe AuthenticodeTimestampCmsSignature(AsnEncodedData data, ICmsSignature owningSignature)
         {
             OwningSignature = owningSignature;
             Kind = SignatureKind.AuthenticodeTimestamp;
@@ -149,8 +168,7 @@ namespace AuthenticodeExaminer
             fixed (byte* dataPtr = data.RawData)
             {
                 uint size = 0;
-                LocalBufferSafeHandle localBuffer;
-                if (Crypt32.CryptDecodeObjectEx(EncodingType.PKCS_7_ASN_ENCODING | EncodingType.X509_ASN_ENCODING, (IntPtr)500, new IntPtr(dataPtr), (uint)data.RawData.Length, CryptDecodeFlags.CRYPT_DECODE_ALLOC_FLAG, IntPtr.Zero, out localBuffer, ref size))
+                if (Crypt32.CryptDecodeObjectEx(EncodingType.PKCS_7_ASN_ENCODING | EncodingType.X509_ASN_ENCODING, (IntPtr)500, new IntPtr(dataPtr), (uint)data.RawData.Length, CryptDecodeFlags.CRYPT_DECODE_ALLOC_FLAG, IntPtr.Zero, out var localBuffer, ref size))
                 {
                     using (localBuffer)
                     {
@@ -178,25 +196,26 @@ namespace AuthenticodeExaminer
             }
         }
 
-        public override IReadOnlyList<ISignature> GetNestedSignatures()
+        /// <inheritdoc />
+        public override IReadOnlyList<ICmsSignature> GetNestedSignatures()
         {
-            var list = new List<ISignature>();
+            var list = new List<ICmsSignature>();
             foreach (var attribute in UnsignedAttributes)
             {
                 foreach (var value in attribute.Values)
                 {
-                    ISignature signature;
+                    ICmsSignature signature;
                     if (attribute.Oid.Value == KnownOids.AuthenticodeCounterSignature)
                     {
-                        signature = new AuthenticodeSignature(value, OwningSignature);
+                        signature = new AuthenticodeTimestampCmsSignature(value, OwningSignature);
                     }
                     else if (attribute.Oid.Value == KnownOids.Rfc3161CounterSignature)
                     {
-                        signature = new Signature(value, SignatureKind.Rfc3161Timestamp);
+                        signature = new CmsSignature(value, SignatureKind.Rfc3161Timestamp);
                     }
                     else if (attribute.Oid.Value == KnownOids.NestedSignatureOid)
                     {
-                        signature = new Signature(value, SignatureKind.NestedSignature);
+                        signature = new CmsSignature(value, SignatureKind.NestedSignature);
                     }
                     else
                     {
@@ -209,9 +228,12 @@ namespace AuthenticodeExaminer
         }
     }
 
-    public class Signature : SignatureBase
+    /// <summary>
+    /// A class that represents an Authenticode signature.
+    /// </summary>
+    public sealed class CmsSignature : CmsSignatureBase
     {
-        internal Signature(SignatureKind kind, CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle, byte[] content)
+        internal CmsSignature(SignatureKind kind, CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle, byte[] content)
         {
             Content = content;
             Kind = kind;
@@ -239,15 +261,11 @@ namespace AuthenticodeExaminer
             SignedAttributes = ReadAttributes(signerInfo.AuthAttrs);
         }
 
-        internal unsafe Signature(AsnEncodedData data, SignatureKind kind)
+        internal unsafe CmsSignature(AsnEncodedData data, SignatureKind kind)
         {
             Kind = kind;
             fixed (byte* pin = data.RawData)
             {
-                EncodingType encodingType;
-                CryptQueryContentType contentType;
-                CryptQueryFormatType formatType;
-                CryptMsgSafeHandle msgHandle;
                 var blob = new CRYPTOAPI_BLOB
                 {
                     cbData = (uint)data.RawData.Length,
@@ -259,11 +277,11 @@ namespace AuthenticodeExaminer
                     CryptQueryContentFlagType.CERT_QUERY_CONTENT_FLAG_ALL,
                     CryptQueryFormatFlagType.CERT_QUERY_FORMAT_FLAG_BINARY,
                     CryptQueryObjectFlags.NONE,
-                    out encodingType,
-                    out contentType,
-                    out formatType,
+                    out var encodingType,
+                    out var contentType,
+                    out var formatType,
                     IntPtr.Zero,
-                    out msgHandle,
+                    out var msgHandle,
                     IntPtr.Zero);
                 if (!result)
                 {
@@ -298,25 +316,26 @@ namespace AuthenticodeExaminer
             }
         }
 
-        public override IReadOnlyList<ISignature> GetNestedSignatures()
+        /// <inheritdoc />
+        public override IReadOnlyList<ICmsSignature> GetNestedSignatures()
         {
-            var list = new List<ISignature>();
+            var list = new List<ICmsSignature>();
             foreach (var attribute in UnsignedAttributes)
             {
                 foreach (var value in attribute.Values)
                 {
-                    ISignature signature;
+                    ICmsSignature signature;
                     if (attribute.Oid.Value == KnownOids.AuthenticodeCounterSignature)
                     {
-                        signature = new AuthenticodeSignature(value, this);
+                        signature = new AuthenticodeTimestampCmsSignature(value, this);
                     }
                     else if (attribute.Oid.Value == KnownOids.Rfc3161CounterSignature)
                     {
-                        signature = new Signature(value, SignatureKind.Rfc3161Timestamp);
+                        signature = new CmsSignature(value, SignatureKind.Rfc3161Timestamp);
                     }
                     else if (attribute.Oid.Value == KnownOids.NestedSignatureOid)
                     {
-                        signature = new Signature(value, SignatureKind.NestedSignature);
+                        signature = new CmsSignature(value, SignatureKind.NestedSignature);
                     }
                     else
                     {
@@ -381,9 +400,11 @@ namespace AuthenticodeExaminer
                 }
                 var serial = new byte[serialNumber.cbData];
                 Marshal.Copy(serialNumber.pbData, serial, 0, serial.Length);
-                var issuerSerial = new X509IssuerSerial();
-                issuerSerial.IssuerName = builder.ToString();
-                issuerSerial.SerialNumber = HashHelpers.HexEncodeBigEndian(serial);
+                var issuerSerial = new X509IssuerSerial
+                {
+                    IssuerName = builder.ToString(),
+                    SerialNumber = HashHelpers.HexEncodeBigEndian(serial)
+                };
                 Value = issuerSerial;
                 Type = SubjectIdentifierType.IssuerAndSerialNumber;
             }

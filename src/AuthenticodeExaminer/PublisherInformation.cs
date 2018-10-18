@@ -1,18 +1,37 @@
 ﻿using AuthenticodeExaminer.Interop;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace AuthenticodeExaminer
 {
+    /// <summary>
+    /// Provides information about the publisher information of an Authenticode signature.
+    /// </summary>
     public class PublisherInformation
     {
+        /// <summary>
+        /// Gets a signer-provided description of the Authenticode signature.
+        /// </summary>
         public string Description { get; }
+
+        /// <summary>
+        /// Gets a signer-provided URL of the Authenticode signature.
+        /// </summary>
         public string UrlLink { get; }
+
+        /// <summary>
+        /// Gets a signer-provided file of the Authenticode signature.
+        /// This option is deprecated in Authenticode.
+        /// </summary>
         public string FileLink { get; }
 
+
+        /// <summary>
+        /// Constructs a new instance of <see cref="PublisherInformation"/>
+        /// from ASN.1 encoded data.
+        /// </summary>
+        /// <param name="data">The ASN.1 encoded data for the publisher information.</param>
         public PublisherInformation(AsnEncodedData data)
         {
             if (data.Oid.Value != KnownOids.OpusInfo)

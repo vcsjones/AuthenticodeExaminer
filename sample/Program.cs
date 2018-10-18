@@ -41,13 +41,13 @@ namespace sample
             return 0;
         }
 
-        static void DumpSignatureDetails(ISignature signature)
+        static void DumpSignatureDetails(AuthenticodeSignature signature)
         {
             Console.WriteLine("Signing Certificate:");
-            Console.WriteLine($"Signer: {signature.Certificate.Subject}");
-            Console.WriteLine($"Issuer: {signature.Certificate.Issuer}");
-            Console.WriteLine($"Not Before: {signature.Certificate.NotBefore}");
-            Console.WriteLine($"Not After: {signature.Certificate.NotAfter}");
+            Console.WriteLine($"Signer: {signature.SigningCertificate.Subject}");
+            Console.WriteLine($"Issuer: {signature.SigningCertificate.Issuer}");
+            Console.WriteLine($"Not Before: {signature.SigningCertificate.NotBefore}");
+            Console.WriteLine($"Not After: {signature.SigningCertificate.NotAfter}");
             Console.WriteLine();
             Console.WriteLine("Signature:");
             Console.WriteLine($"Digest algorithm: {signature.DigestAlgorithmName}");
@@ -64,17 +64,20 @@ namespace sample
             }
             Console.WriteLine();
 
-            var timestamp = signature.GetTimestampSignature();
-            if (timestamp != null)
+            var timestamps = signature.GetTimestampSignatures();
+            foreach (var timestamp in timestamps)
             {
-                Console.WriteLine("\tTimestamp Certificate:");
-                Console.WriteLine($"\tSigner: {timestamp.Certificate.Subject}");
-                Console.WriteLine($"\tIssuer: {timestamp.Certificate.Issuer}");
-                Console.WriteLine($"\tNot Before: {timestamp.Certificate.NotBefore}");
-                Console.WriteLine($"\tNot After: {timestamp.Certificate.NotAfter}");
-                Console.WriteLine();
-                Console.WriteLine($"\tTimestamp Time: {(timestamp.GetTimestampSigningTime()?.ToString() ?? "Unknown")}");
-                Console.WriteLine();
+                if (timestamp != null)
+                {
+                    Console.WriteLine("\tTimestamp Certificate:");
+                    Console.WriteLine($"\tSigner: {timestamp.SigningCertificate.Subject}");
+                    Console.WriteLine($"\tIssuer: {timestamp.SigningCertificate.Issuer}");
+                    Console.WriteLine($"\tNot Before: {timestamp.SigningCertificate.NotBefore}");
+                    Console.WriteLine($"\tNot After: {timestamp.SigningCertificate.NotAfter}");
+                    Console.WriteLine();
+                    Console.WriteLine($"\tTimestamp Time: {(timestamp.TimestampDateTime?.ToString() ?? "Unknown")}");
+                    Console.WriteLine();
+                }
             }
 
             Console.WriteLine();

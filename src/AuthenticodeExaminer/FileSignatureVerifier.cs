@@ -36,8 +36,10 @@ namespace AuthenticodeExaminer
                 trust->dwUIContext = WinTrustUIContext.WTD_UICONTEXT_EXECUTE;
                 trust->dwUnionChoice = WinTrustUnionChoice.WTD_CHOICE_FILE;
                 trust->fdwRevocationChecks = revocationFlags;
-                trust->trustUnion = new WINTRUST_DATA_UNION();
-                trust->trustUnion.pFile = fileInfo;
+                trust->trustUnion = new WINTRUST_DATA_UNION
+                {
+                    pFile = fileInfo
+                };
                 trust->trustUnion.pFile->cbStruct = (uint)Marshal.SizeOf<WINTRUST_FILE_INFO>();
                 trust->trustUnion.pFile->pcwszFilePath = pathPtr;
                 return Wintrust.WinVerifyTrustEx(new IntPtr(-1), KnownGuids.WINTRUST_ACTION_GENERIC_VERIFY_V2, trust);
