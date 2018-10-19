@@ -1,8 +1,12 @@
 ﻿using AuthenticodeExaminer.Interop;
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
+
+// A FILETIME struct exists in both System.Runtime.InteropServices
+// and System.Runtime.InteropServices.ComTypes for full framework
+// => Explicitly use the the type from ComTypes so project can target net461
+using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 namespace AuthenticodeExaminer
 {
