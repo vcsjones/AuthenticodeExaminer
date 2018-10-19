@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Authors>Kevin Jones</Authors>
     <PackageTags>authenticode;keyvault;codesign</PackageTags>
@@ -15,9 +15,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.1" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="4.5.0" />
     <PackageReference Include="System.Memory" Version="4.5.1" />
   </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">    
+    <Reference Include="System.Security" />
+  </ItemGroup>
+  
 </Project>
