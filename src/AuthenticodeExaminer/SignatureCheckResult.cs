@@ -35,5 +35,28 @@
         /// The file is signed, however is explicitly distrusted on this system.
         /// </summary>
         ExplicitDistrust = unchecked((int)0x800b0111), //TRUST_E_EXPLICIT_DISTRUST
+
+        /// <summary>
+        /// The certificate used to sign the file is expired.
+        /// </summary>
+        /// <remarks>
+        /// This can happen if the file is not timestamped and the certificate has expired since it was signed,
+        /// or the certificate was already expired at the time of signing.
+        /// </remarks>
+        CertificateExpired = unchecked((int)0x800B0101), //CERT_E_EXPIRED
+
+        /// <summary>
+        /// The file's signature is not valid for an unknown reason.
+        /// </summary>
+        UnknownFailure = unchecked((int)0x800B010B),
+
+        /// <summary>
+        /// The certificate used to sign the file is revoked.
+        /// </summary>
+        /// <remarks>
+        /// This can happen if the file is not timestamped and the certificate has been revoked, or the certificate
+        /// was already revoked at the time of signing.
+        /// </remarks>
+        RevokedCertificate = unchecked((int)0x800B010C),
     }
 }
