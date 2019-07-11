@@ -46,6 +46,11 @@ namespace AuthenticodeExaminer
         public HashAlgorithmName DigestAlgorithmName => _cmsSignature.DigestAlgorithmName;
 
         /// <summary>
+        /// Gets the signature.
+        /// </summary>
+        public ReadOnlyMemory<byte> Signature => _cmsSignature.Signature;
+
+        /// <summary>
         /// Gets a list of counter timestamp signers.
         /// </summary>
         public IReadOnlyList<TimestampSignature> TimestampSignatures
@@ -132,6 +137,11 @@ namespace AuthenticodeExaminer
         /// could not be parsed correctly.
         /// </summary>
         public DateTimeOffset? TimestampDateTime { get; protected set; }
+
+        /// <summary>
+        /// Gets the signature.
+        /// </summary>
+        public ReadOnlyMemory<byte> Signature => _cmsSignature.Signature;
 
         private protected TimestampSignature(ICmsSignature cmsSignature)
         {

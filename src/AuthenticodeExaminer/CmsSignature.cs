@@ -34,6 +34,8 @@ namespace AuthenticodeExaminer
         /// <inheritdoc/>
         public byte[] Content { get; protected set; }
         /// <inheritdoc/>
+        public ReadOnlyMemory<byte> Signature { get; protected set; }
+        /// <inheritdoc/>
         public HashAlgorithmName DigestAlgorithmName
         {
             get
@@ -173,6 +175,7 @@ namespace AuthenticodeExaminer
                     using (localBuffer)
                     {
                         var signerInfo = Marshal.PtrToStructure<CMSG_SIGNER_INFO>(localBuffer.DangerousGetHandle());
+                        Signature = ReadBlob(signerInfo.EncryptedHash);
                         DigestAlgorithm = new Oid(signerInfo.HashAlgorithm.pszObjId);
                         HashEncryptionAlgorithm = new Oid(signerInfo.HashEncryptionAlgorithm.pszObjId);
                         SerialNumber = ReadBlob(signerInfo.SerialNumber);
@@ -243,6 +246,7 @@ namespace AuthenticodeExaminer
         private void InitFromHandles(CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle)
         {
             var signerInfo = Marshal.PtrToStructure<CMSG_SIGNER_INFO>(signerHandle.DangerousGetHandle());
+            Signature = ReadBlob(signerInfo.EncryptedHash);
             var subjectId = new UniversalSubjectIdentifier(signerInfo.Issuer, signerInfo.SerialNumber);
             var certs = GetCertificatesFromMessage(messageHandle);
             if (subjectId.Type == SubjectIdentifierType.SubjectKeyIdentifier)
