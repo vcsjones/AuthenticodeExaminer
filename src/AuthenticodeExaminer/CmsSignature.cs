@@ -381,7 +381,7 @@ namespace AuthenticodeExaminer
                                     Type = SubjectIdentifierType.SubjectKeyIdentifier;
                                     var ski = new byte[attribute.Value.cbData];
                                     Marshal.Copy(attribute.Value.pbData, ski, 0, ski.Length);
-                                    Value = HashHelpers.HexEncodeBigEndian(ski);
+                                    Value = HexHelpers.HexEncodeBigEndian(ski);
                                     return;
                                 }
                             }
@@ -407,7 +407,7 @@ namespace AuthenticodeExaminer
                 var issuerSerial = new X509IssuerSerial
                 {
                     IssuerName = builder.ToString(),
-                    SerialNumber = HashHelpers.HexEncodeBigEndian(serial)
+                    SerialNumber = HexHelpers.HexEncodeBigEndian(serial)
                 };
                 Value = issuerSerial;
                 Type = SubjectIdentifierType.IssuerAndSerialNumber;
