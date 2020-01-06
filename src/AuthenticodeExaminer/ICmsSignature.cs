@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -65,5 +66,10 @@ namespace AuthenticodeExaminer
         /// Get the serial number of the certificate used to sign the signature.
         /// </summary>
         byte[] SerialNumber { get; }
+
+        /// <summary>
+        /// Gets the signature.
+        /// </summary>
+        ReadOnlyMemory<byte> Signature { get; }
     }
 }

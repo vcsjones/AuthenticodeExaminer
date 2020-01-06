@@ -1,4 +1,4 @@
-﻿using AuthenticodeExaminer;
+using AuthenticodeExaminer;
 using System;
 using System.IO;
 
@@ -61,6 +61,7 @@ namespace sample
                 Console.WriteLine($"Publisher Site: {signature.PublisherInformation.UrlLink}");
                 Console.WriteLine($"Publisher Description: {signature.PublisherInformation.Description}");
             }
+            Console.WriteLine($"Signature: {HexHelpers.HexEncode(signature.Signature)}");
             Console.WriteLine();
 
             foreach (var timestamp in signature.TimestampSignatures)
@@ -72,6 +73,8 @@ namespace sample
                     Console.WriteLine($"\tIssuer: {timestamp.SigningCertificate.Issuer}");
                     Console.WriteLine($"\tNot Before: {timestamp.SigningCertificate.NotBefore}");
                     Console.WriteLine($"\tNot After: {timestamp.SigningCertificate.NotAfter}");
+                    Console.WriteLine();
+                    Console.WriteLine($"\tSignature: {HexHelpers.HexEncode(timestamp.Signature)}");
                     Console.WriteLine();
                     Console.WriteLine($"\tTimestamp Time: {(timestamp.TimestampDateTime?.ToString() ?? "Unknown")}");
                     Console.WriteLine();

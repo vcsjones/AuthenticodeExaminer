@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticodeExaminer", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sample", "sample\sample.csproj", "{90734C54-24C6-4A5A-A57F-76F73D1CB57D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{073FEB0A-2B0C-4643-A7D8-86CF408312F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticodeExaminer.Tests", "test\AuthenticodeExaminer.Tests\AuthenticodeExaminer.Tests.csproj", "{7705C156-0A1F-4F39-AF96-C06F07D63A52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,12 +47,25 @@ Global
 		{90734C54-24C6-4A5A-A57F-76F73D1CB57D}.Release|x64.Build.0 = Release|Any CPU
 		{90734C54-24C6-4A5A-A57F-76F73D1CB57D}.Release|x86.ActiveCfg = Release|Any CPU
 		{90734C54-24C6-4A5A-A57F-76F73D1CB57D}.Release|x86.Build.0 = Release|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Debug|x64.Build.0 = Debug|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Debug|x86.Build.0 = Debug|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Release|x64.ActiveCfg = Release|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Release|x64.Build.0 = Release|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Release|x86.ActiveCfg = Release|Any CPU
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3984B7D2-C891-4B49-8FFC-A9705C81ED67} = {B9EB8146-D425-4D6C-9F1D-F911B842ABFA}
+		{7705C156-0A1F-4F39-AF96-C06F07D63A52} = {073FEB0A-2B0C-4643-A7D8-86CF408312F2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1D0FB1FA-554A-4B38-8368-7747DB0439FA}
