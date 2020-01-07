@@ -58,5 +58,10 @@
         /// was already revoked at the time of signing.
         /// </remarks>
         RevokedCertificate = unchecked((int)0x800B010C),
+
+        /// <summary>
+        /// The file is not a file type that Windows recognizes for Authenticode.
+        /// </summary>
+        UnknownSubject = unchecked((int)0x800B0003),
     }
 }
