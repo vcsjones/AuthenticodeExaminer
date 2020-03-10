@@ -36,27 +36,14 @@ namespace AuthenticodeExaminer
         /// <inheritdoc/>
         public ReadOnlyMemory<byte> Signature { get; protected set; }
         /// <inheritdoc/>
-        public HashAlgorithmName DigestAlgorithmName
-        {
-            get
-            {
-                switch (DigestAlgorithm?.Value)
-                {
-                    case KnownOids.MD5:
-                        return HashAlgorithmName.MD5;
-                    case KnownOids.SHA1:
-                        return HashAlgorithmName.SHA1;
-                    case KnownOids.SHA256:
-                        return HashAlgorithmName.SHA256;
-                    case KnownOids.SHA384:
-                        return HashAlgorithmName.SHA384;
-                    case KnownOids.SHA512:
-                        return HashAlgorithmName.SHA512;
-                    default:
-                        return default;
-                }
-            }
-        }
+        public HashAlgorithmName DigestAlgorithmName => DigestAlgorithm?.Value switch {
+            KnownOids.MD5 => HashAlgorithmName.MD5,
+            KnownOids.SHA1 => HashAlgorithmName.SHA1,
+            KnownOids.SHA256 => HashAlgorithmName.SHA256,
+            KnownOids.SHA384 => HashAlgorithmName.SHA384,
+            KnownOids.SHA512 => HashAlgorithmName.SHA512,
+            _ => default
+        };
 
         internal byte[] ReadBlob(CRYPTOAPI_BLOB blob) => blob.AsSpan().ToArray();
 
@@ -203,21 +190,19 @@ namespace AuthenticodeExaminer
                 foreach (var value in attribute.Values)
                 {
                     ICmsSignature signature;
-                    if (attribute.Oid.Value == KnownOids.AuthenticodeCounterSignature)
+                    switch (attribute.Oid.Value)
                     {
-                        signature = new AuthenticodeTimestampCmsSignature(value, OwningSignature);
-                    }
-                    else if (attribute.Oid.Value == KnownOids.Rfc3161CounterSignature)
-                    {
-                        signature = new CmsSignature(value, SignatureKind.Rfc3161Timestamp);
-                    }
-                    else if (attribute.Oid.Value == KnownOids.NestedSignatureOid)
-                    {
-                        signature = new CmsSignature(value, SignatureKind.NestedSignature);
-                    }
-                    else
-                    {
-                        continue;
+                        case KnownOids.AuthenticodeCounterSignature:
+                            signature = new AuthenticodeTimestampCmsSignature(value, OwningSignature);
+                            break;
+                        case KnownOids.Rfc3161CounterSignature:
+                            signature = new CmsSignature(value, SignatureKind.Rfc3161Timestamp);
+                            break;
+                        case KnownOids.NestedSignatureOid:
+                            signature = new CmsSignature(value, SignatureKind.NestedSignature);
+                            break;
+                        default:
+                            continue;
                     }
                     list.Add(signature);
                 }
@@ -268,13 +253,11 @@ namespace AuthenticodeExaminer
                 var contentSize = 0u;
                 if (Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, LocalBufferSafeHandle.Zero, ref contentSize))
                 {
-                    using (var contentHandle = LocalBufferSafeHandle.Alloc(contentSize))
+                    using var contentHandle = LocalBufferSafeHandle.Alloc(contentSize);
+                    if (Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, contentHandle, ref contentSize))
                     {
-                        if (Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, contentHandle, ref contentSize))
-                        {
-                            Content = new byte[contentSize];
-                            Marshal.Copy(contentHandle.DangerousGetHandle(), Content, 0, (int)contentSize);
-                        }
+                        Content = new byte[contentSize];
+                        Marshal.Copy(contentHandle.DangerousGetHandle(), Content, 0, (int)contentSize);
                     }
                 }
                 var signerSize = 0u;
@@ -282,14 +265,12 @@ namespace AuthenticodeExaminer
                 {
                     throw new InvalidOperationException();
                 }
-                using (var signerHandle = LocalBufferSafeHandle.Alloc(signerSize))
+                using var signerHandle = LocalBufferSafeHandle.Alloc(signerSize);
+                if (!Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_SIGNER_INFO_PARAM, 0, signerHandle, ref signerSize))
                 {
-                    if (!Crypt32.CryptMsgGetParam(msgHandle, CryptMsgParamType.CMSG_SIGNER_INFO_PARAM, 0, signerHandle, ref signerSize))
-                    {
-                        throw new InvalidOperationException();
-                    }
-                    InitFromHandles(msgHandle, signerHandle);
+                    throw new InvalidOperationException();
                 }
+                InitFromHandles(msgHandle, signerHandle);
             }
         }
 
@@ -324,21 +305,19 @@ namespace AuthenticodeExaminer
                 foreach (var value in attribute.Values)
                 {
                     ICmsSignature signature;
-                    if (attribute.Oid.Value == KnownOids.AuthenticodeCounterSignature)
+                    switch (attribute.Oid.Value)
                     {
-                        signature = new AuthenticodeTimestampCmsSignature(value, this);
-                    }
-                    else if (attribute.Oid.Value == KnownOids.Rfc3161CounterSignature)
-                    {
-                        signature = new CmsSignature(value, SignatureKind.Rfc3161Timestamp);
-                    }
-                    else if (attribute.Oid.Value == KnownOids.NestedSignatureOid)
-                    {
-                        signature = new CmsSignature(value, SignatureKind.NestedSignature);
-                    }
-                    else
-                    {
-                        continue;
+                        case KnownOids.AuthenticodeCounterSignature:
+                            signature = new AuthenticodeTimestampCmsSignature(value, this);
+                            break;
+                        case KnownOids.Rfc3161CounterSignature:
+                            signature = new CmsSignature(value, SignatureKind.Rfc3161Timestamp);
+                            break;
+                        case KnownOids.NestedSignatureOid:
+                            signature = new CmsSignature(value, SignatureKind.NestedSignature);
+                            break;
+                        default:
+                            continue;
                     }
                     list.Add(signature);
                 }
@@ -374,8 +353,7 @@ namespace AuthenticodeExaminer
                                 if (attribute.pszObjId == KnownOids.KeyId)
                                 {
                                     Type = SubjectIdentifierType.SubjectKeyIdentifier;
-                                    var ski = new byte[attribute.Value.cbData];
-                                    Marshal.Copy(attribute.Value.pbData, ski, 0, ski.Length);
+                                    var ski = attribute.Value.AsSpan();
                                     Value = HexHelpers.HexEncodeBigEndian(ski);
                                     return;
                                 }

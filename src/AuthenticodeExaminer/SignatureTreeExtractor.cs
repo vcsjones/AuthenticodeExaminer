@@ -70,13 +70,11 @@ namespace AuthenticodeExaminer
             byte[]? content = null;
             if (Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, LocalBufferSafeHandle.Zero, ref contentSize))
             {
-                using (var contentHandle = LocalBufferSafeHandle.Alloc(contentSize))
+                using var contentHandle = LocalBufferSafeHandle.Alloc(contentSize);
+                if (Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, contentHandle, ref contentSize))
                 {
-                    if (Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, contentHandle, ref contentSize))
-                    {
-                        content = new byte[contentSize];
-                        Marshal.Copy(contentHandle.DangerousGetHandle(), content, 0, (int)contentSize);
-                    }
+                    content = new byte[contentSize];
+                    Marshal.Copy(contentHandle.DangerousGetHandle(), content, 0, (int)contentSize);
                 }
             }
             for (var i = 0u; i < signerCount; i++)
@@ -86,15 +84,13 @@ namespace AuthenticodeExaminer
                 {
                     continue;
                 }
-                using (var signerHandle = LocalBufferSafeHandle.Alloc(signerSize))
+                using var signerHandle = LocalBufferSafeHandle.Alloc(signerSize);
+                if (!Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_SIGNER_INFO_PARAM, i, signerHandle, ref signerSize))
                 {
-                    if (!Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_SIGNER_INFO_PARAM, i, signerHandle, ref signerSize))
-                    {
-                        continue;
-                    }
-                    var signature = new CmsSignature(SignatureKind.Signature, messageHandle, signerHandle, content);
-                    signatures.Add(signature);
+                    continue;
                 }
+                var signature = new CmsSignature(SignatureKind.Signature, messageHandle, signerHandle, content);
+                signatures.Add(signature);
             }
             return signatures.AsReadOnly();
         }
