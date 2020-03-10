@@ -95,6 +95,7 @@ namespace AuthenticodeExaminer
                         if (attribute.Oid.Value == KnownOids.OpusInfo && attribute.Values.Count > 0)
                         {
                             publisherInformation = new PublisherInformation(attribute.Values[0]);
+                            break;
                         }
                     }
                     Interlocked.CompareExchange(ref _publisherInformation, publisherInformation ?? new PublisherInformation(), null);
@@ -158,6 +159,7 @@ namespace AuthenticodeExaminer
                     if (attribute.Oid.Value == KnownOids.SigningTime && attribute.Values.Count > 0)
                     {
                         TimestampDateTime = TimestampDecoding.DecodeAuthenticodeTimestamp(attribute.Values[0]);
+                        break;
                     }
                 }
             }
