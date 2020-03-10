@@ -13,12 +13,12 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Gets the hashing digest algorithm of the signature.
         /// </summary>
-        Oid DigestAlgorithm { get; }
+        Oid? DigestAlgorithm { get; }
 
         /// <summary>
         /// Gets the signing algorithm of the signature.
         /// </summary>
-        Oid HashEncryptionAlgorithm { get; }
+        Oid? HashEncryptionAlgorithm { get; }
 
         /// <summary>
         /// Provides a list of unsigned, or unathenticated, attributes in the current signature.
@@ -33,7 +33,7 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Gets the X509 certificate used in the signature.
         /// </summary>
-        X509Certificate2 Certificate { get; }
+        X509Certificate2? Certificate { get; }
         
         /// <summary>
         /// Gets a list of sub-signatures, such as nested signatures or counter signatures.
@@ -60,7 +60,7 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Provides the raw value of the content of the signature.
         /// </summary>
-        byte[] Content { get;  }
+        byte[]? Content { get;  }
 
         /// <summary>
         /// Get the serial number of the certificate used to sign the signature.

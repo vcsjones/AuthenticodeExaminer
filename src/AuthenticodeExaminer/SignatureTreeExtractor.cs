@@ -67,7 +67,7 @@ namespace AuthenticodeExaminer
             }
             var signatures = new List<ICmsSignature>();
             var contentSize = 0u;
-            byte[] content = null;
+            byte[]? content = null;
             if (Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_CONTENT_PARAM, 0, LocalBufferSafeHandle.Zero, ref contentSize))
             {
                 using (var contentHandle = LocalBufferSafeHandle.Alloc(contentSize))
