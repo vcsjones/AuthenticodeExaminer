@@ -44,10 +44,10 @@ namespace sample
         static void DumpSignatureDetails(AuthenticodeSignature signature)
         {
             Console.WriteLine("Signing Certificate:");
-            Console.WriteLine($"Signer: {signature.SigningCertificate.Subject}");
-            Console.WriteLine($"Issuer: {signature.SigningCertificate.Issuer}");
-            Console.WriteLine($"Not Before: {signature.SigningCertificate.NotBefore}");
-            Console.WriteLine($"Not After: {signature.SigningCertificate.NotAfter}");
+            Console.WriteLine($"Signer: {signature.SigningCertificate?.Subject}");
+            Console.WriteLine($"Issuer: {signature.SigningCertificate?.Issuer}");
+            Console.WriteLine($"Not Before: {signature.SigningCertificate?.NotBefore}");
+            Console.WriteLine($"Not After: {signature.SigningCertificate?.NotAfter}");
             Console.WriteLine();
             Console.WriteLine("Signature:");
             Console.WriteLine($"Digest algorithm: {signature.DigestAlgorithmName}");
@@ -69,10 +69,10 @@ namespace sample
                 if (timestamp != null)
                 {
                     Console.WriteLine("\tTimestamp Certificate:");
-                    Console.WriteLine($"\tSigner: {timestamp.SigningCertificate.Subject}");
-                    Console.WriteLine($"\tIssuer: {timestamp.SigningCertificate.Issuer}");
-                    Console.WriteLine($"\tNot Before: {timestamp.SigningCertificate.NotBefore}");
-                    Console.WriteLine($"\tNot After: {timestamp.SigningCertificate.NotAfter}");
+                    Console.WriteLine($"\tSigner: {timestamp.SigningCertificate?.Subject}");
+                    Console.WriteLine($"\tIssuer: {timestamp.SigningCertificate?.Issuer}");
+                    Console.WriteLine($"\tNot Before: {timestamp.SigningCertificate?.NotBefore}");
+                    Console.WriteLine($"\tNot After: {timestamp.SigningCertificate?.NotAfter}");
                     Console.WriteLine();
                     Console.WriteLine($"\tSignature: {HexHelpers.HexEncode(timestamp.Signature)}");
                     Console.WriteLine();

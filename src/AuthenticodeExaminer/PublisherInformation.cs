@@ -13,18 +13,18 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Gets a signer-provided description of the Authenticode signature.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; }
 
         /// <summary>
         /// Gets a signer-provided URL of the Authenticode signature.
         /// </summary>
-        public string UrlLink { get; }
+        public string? UrlLink { get; }
 
         /// <summary>
         /// Gets a signer-provided file of the Authenticode signature.
         /// This option is deprecated in Authenticode.
         /// </summary>
-        public string FileLink { get; }
+        public string? FileLink { get; }
 
         /// <summary>
         /// Indicates if the current instance of <see cref="PublisherInformation"/> contains

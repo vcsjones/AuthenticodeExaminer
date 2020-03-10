@@ -16,23 +16,23 @@ namespace AuthenticodeExaminer
     public abstract class CmsSignatureBase : ICmsSignature
     {
         /// <inheritdoc/>
-        public Oid DigestAlgorithm { get; protected set; }
+        public Oid? DigestAlgorithm { get; protected set; }
         /// <inheritdoc/>
-        public Oid HashEncryptionAlgorithm { get; protected set; }
+        public Oid? HashEncryptionAlgorithm { get; protected set; }
         /// <inheritdoc/>
-        public IReadOnlyList<CryptographicAttributeObject> UnsignedAttributes { get; protected set; }
+        public IReadOnlyList<CryptographicAttributeObject> UnsignedAttributes { get; protected set; } = Array.Empty<CryptographicAttributeObject>();
         /// <inheritdoc/>
-        public IReadOnlyList<CryptographicAttributeObject> SignedAttributes { get; protected set; }
+        public IReadOnlyList<CryptographicAttributeObject> SignedAttributes { get; protected set; } = Array.Empty<CryptographicAttributeObject>();
         /// <inheritdoc/>
-        public byte[] SerialNumber { get; protected set; }
+        public byte[] SerialNumber { get; protected set; } = Array.Empty<byte>();
         /// <inheritdoc/>
-        public X509Certificate2 Certificate { get; protected set; }
+        public X509Certificate2? Certificate { get; protected set; }
         /// <inheritdoc/>
         public SignatureKind Kind { get; protected set; }
         /// <inheritdoc/>
-        public X509Certificate2Collection AdditionalCertificates { get; protected set; }
+        public X509Certificate2Collection AdditionalCertificates { get; protected set; } = new X509Certificate2Collection();
         /// <inheritdoc/>
-        public byte[] Content { get; protected set; }
+        public byte[]? Content { get; protected set; }
         /// <inheritdoc/>
         public ReadOnlyMemory<byte> Signature { get; protected set; }
         /// <inheritdoc/>
@@ -40,7 +40,7 @@ namespace AuthenticodeExaminer
         {
             get
             {
-                switch (DigestAlgorithm.Value)
+                switch (DigestAlgorithm?.Value)
                 {
                     case KnownOids.MD5:
                         return HashAlgorithmName.MD5;
@@ -58,12 +58,7 @@ namespace AuthenticodeExaminer
             }
         }
 
-        internal byte[] ReadBlob(CRYPTOAPI_BLOB blob)
-        {
-            var buffer = new byte[blob.cbData];
-            Marshal.Copy(blob.pbData, buffer, 0, buffer.Length);
-            return buffer;
-        }
+        internal byte[] ReadBlob(CRYPTOAPI_BLOB blob) => blob.AsSpan().ToArray();
 
         internal unsafe List<CryptographicAttributeObject> ReadAttributes(CRYPT_ATTRIBUTES attributes)
         {
@@ -84,7 +79,7 @@ namespace AuthenticodeExaminer
             return collection;
         }
 
-        private protected X509Certificate2 FindCertificate(X509IssuerSerial issuerSerial, X509Certificate2Collection certificateCollection)
+        private protected X509Certificate2? FindCertificate(X509IssuerSerial issuerSerial, X509Certificate2Collection certificateCollection)
         {
             var byDN = certificateCollection.Find(X509FindType.FindByIssuerDistinguishedName, issuerSerial.IssuerName, false);
             if (byDN.Count < 1)
@@ -99,7 +94,7 @@ namespace AuthenticodeExaminer
             return bySerial[0];
         }
 
-        private protected X509Certificate2 FindCertificate(string keyId, X509Certificate2Collection certificateCollection)
+        private protected X509Certificate2? FindCertificate(string keyId, X509Certificate2Collection certificateCollection)
         {
             var byKeyId = certificateCollection.Find(X509FindType.FindBySubjectKeyIdentifier, keyId, false);
             if (byKeyId.Count != 1)
@@ -236,33 +231,11 @@ namespace AuthenticodeExaminer
     /// </summary>
     public sealed class CmsSignature : CmsSignatureBase
     {
-        internal CmsSignature(SignatureKind kind, CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle, byte[] content)
+        internal CmsSignature(SignatureKind kind, CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle, byte[]? content)
         {
             Content = content;
             Kind = kind;
             InitFromHandles(messageHandle, signerHandle);
-        }
-
-        private void InitFromHandles(CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle)
-        {
-            var signerInfo = Marshal.PtrToStructure<CMSG_SIGNER_INFO>(signerHandle.DangerousGetHandle());
-            Signature = ReadBlob(signerInfo.EncryptedHash);
-            var subjectId = new UniversalSubjectIdentifier(signerInfo.Issuer, signerInfo.SerialNumber);
-            var certs = GetCertificatesFromMessage(messageHandle);
-            if (subjectId.Type == SubjectIdentifierType.SubjectKeyIdentifier)
-            {
-                Certificate = FindCertificate((string)subjectId.Value, certs);
-            }
-            else if (subjectId.Type == SubjectIdentifierType.IssuerAndSerialNumber)
-            {
-                Certificate = FindCertificate((X509IssuerSerial)subjectId.Value, certs);
-            }
-            AdditionalCertificates = certs;
-            DigestAlgorithm = new Oid(signerInfo.HashAlgorithm.pszObjId);
-            HashEncryptionAlgorithm = new Oid(signerInfo.HashEncryptionAlgorithm.pszObjId);
-            SerialNumber = ReadBlob(signerInfo.SerialNumber);
-            UnsignedAttributes = ReadAttributes(signerInfo.UnauthAttrs);
-            SignedAttributes = ReadAttributes(signerInfo.AuthAttrs);
         }
 
         internal unsafe CmsSignature(AsnEncodedData data, SignatureKind kind)
@@ -318,6 +291,28 @@ namespace AuthenticodeExaminer
                     InitFromHandles(msgHandle, signerHandle);
                 }
             }
+        }
+
+        private void InitFromHandles(CryptMsgSafeHandle messageHandle, LocalBufferSafeHandle signerHandle)
+        {
+            var signerInfo = Marshal.PtrToStructure<CMSG_SIGNER_INFO>(signerHandle.DangerousGetHandle());
+            Signature = ReadBlob(signerInfo.EncryptedHash);
+            var subjectId = new UniversalSubjectIdentifier(signerInfo.Issuer, signerInfo.SerialNumber);
+            var certs = GetCertificatesFromMessage(messageHandle);
+            if (subjectId.Type == SubjectIdentifierType.SubjectKeyIdentifier)
+            {
+                Certificate = FindCertificate((string)subjectId.Value, certs);
+            }
+            else if (subjectId.Type == SubjectIdentifierType.IssuerAndSerialNumber)
+            {
+                Certificate = FindCertificate((X509IssuerSerial)subjectId.Value, certs);
+            }
+            AdditionalCertificates = certs;
+            DigestAlgorithm = new Oid(signerInfo.HashAlgorithm.pszObjId);
+            HashEncryptionAlgorithm = new Oid(signerInfo.HashEncryptionAlgorithm.pszObjId);
+            SerialNumber = ReadBlob(signerInfo.SerialNumber);
+            UnsignedAttributes = ReadAttributes(signerInfo.UnauthAttrs);
+            SignedAttributes = ReadAttributes(signerInfo.AuthAttrs);
         }
 
         /// <inheritdoc />
@@ -402,8 +397,7 @@ namespace AuthenticodeExaminer
                 {
                     throw new InvalidOperationException();
                 }
-                var serial = new byte[serialNumber.cbData];
-                Marshal.Copy(serialNumber.pbData, serial, 0, serial.Length);
+                var serial = serialNumber.AsSpan();
                 var issuerSerial = new X509IssuerSerial
                 {
                     IssuerName = builder.ToString(),
@@ -416,18 +410,15 @@ namespace AuthenticodeExaminer
 
         private static bool IsBlobAllZero(CRYPTOAPI_BLOB blob)
         {
-            unsafe
+            var data = blob.AsSpan();
+            for (var i = 0; i < data.Length; i++)
             {
-                var data = (byte*)blob.pbData.ToPointer();
-                for (var i = 0; i < blob.cbData; i++)
+                if (data[i] != 0)
                 {
-                    if (data[i] != 0)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-                return true;
             }
+            return true;
 
         }
     }

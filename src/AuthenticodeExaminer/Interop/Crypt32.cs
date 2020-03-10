@@ -109,7 +109,7 @@ namespace AuthenticodeExaminer.Interop
             [param: In, MarshalAs(UnmanagedType.U4)] EncodingType dwCertEncodingType,
             [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr pName,
             [param: In, MarshalAs(UnmanagedType.U4)] CertNameStrType dwStrType,
-            [param: In, Out] StringBuilder psz,
+            [param: In, Out] StringBuilder? psz,
             [param: In] uint csz
         );
     }
@@ -293,6 +293,11 @@ namespace AuthenticodeExaminer.Interop
     {
         public uint cbData;
         public IntPtr pbData;
+
+        public unsafe ReadOnlySpan<byte> AsSpan()
+        {
+            return new ReadOnlySpan<byte>(pbData.ToPointer(), checked((int)cbData));
+        }
     }
 
     [type: StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]

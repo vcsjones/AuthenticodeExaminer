@@ -12,8 +12,8 @@ namespace AuthenticodeExaminer
     public sealed class AuthenticodeSignature
     {
         private readonly ICmsSignature _cmsSignature;
-        private IReadOnlyList<TimestampSignature> _timestampSignatures;
-        private PublisherInformation _publisherInformation;
+        private IReadOnlyList<TimestampSignature>? _timestampSignatures;
+        private PublisherInformation? _publisherInformation;
 
         internal AuthenticodeSignature(ICmsSignature cmsSignature)
         {
@@ -27,7 +27,7 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Gets the X509 certificate used in the signature.
         /// </summary>
-        public X509Certificate2 SigningCertificate => _cmsSignature.Certificate;
+        public X509Certificate2? SigningCertificate => _cmsSignature.Certificate;
 
         /// <summary>
         /// Gets a list of additional certificates provided by the signer in the signature used to assist in chain
@@ -38,7 +38,7 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Provides the raw content of the signature, or null.
         /// </summary>
-        public byte[] Contents => _cmsSignature.Content;
+        public byte[]? Contents => _cmsSignature.Content;
 
         /// <summary>
         /// Gets the algorithm used to hash the subject that is signed.
@@ -89,7 +89,7 @@ namespace AuthenticodeExaminer
             {
                 if (_publisherInformation == null)
                 {
-                    PublisherInformation publisherInformation = null;
+                    PublisherInformation? publisherInformation = null;
                     foreach (var attribute in _cmsSignature.SignedAttributes)
                     {
                         if (attribute.Oid.Value == KnownOids.OpusInfo && attribute.Values.Count > 0)
@@ -114,7 +114,7 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Gets the X509 certificate used in the signature.
         /// </summary>
-        public X509Certificate2 SigningCertificate => _cmsSignature.Certificate;
+        public X509Certificate2? SigningCertificate => _cmsSignature.Certificate;
 
         /// <summary>
         /// Gets a list of additional certificates provided by the signer in the signature used to assist in chain
@@ -125,7 +125,7 @@ namespace AuthenticodeExaminer
         /// <summary>
         /// Provides the raw content of the signature, or null.
         /// </summary>
-        public byte[] Contents => _cmsSignature.Content;
+        public byte[]? Contents => _cmsSignature.Content;
 
         /// <summary>
         /// Gets the algorithm used to hash the subject that is signed.
@@ -169,7 +169,10 @@ namespace AuthenticodeExaminer
             public RFC3161TimestampSignature(CmsSignature rfc3161Signature) : base(rfc3161Signature)
             {
                 var content = rfc3161Signature.Content;
-                TimestampDateTime = TimestampDecoding.DecodeRfc3161(content);
+                if (content is object)
+                {
+                    TimestampDateTime = TimestampDecoding.DecodeRfc3161(content);
+                }
             }
         }
     }
