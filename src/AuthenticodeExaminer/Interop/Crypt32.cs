@@ -42,7 +42,7 @@ namespace AuthenticodeExaminer.Interop
 
         [method: DllImport("crypt32.dll", CallingConvention = CallingConvention.Winapi, EntryPoint = "CryptDecodeObjectEx", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern unsafe bool CryptDecodeObjectEx
+        public static extern bool CryptDecodeObjectEx
         (
             [param: In, MarshalAs(UnmanagedType.U4)] EncodingType dwCertEncodingType,
             [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr lpszStructType,
@@ -82,7 +82,7 @@ namespace AuthenticodeExaminer.Interop
 
         [method: DllImport("crypt32.dll", CallingConvention = CallingConvention.Winapi, EntryPoint = "CryptMsgGetParam", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static unsafe extern bool CryptMsgGetParam
+        public static extern bool CryptMsgGetParam
         (
             [param: In] CryptMsgSafeHandle hCryptMsg,
             [param: In, MarshalAs(UnmanagedType.U4)] CryptMsgParamType dwParamType,
@@ -93,7 +93,7 @@ namespace AuthenticodeExaminer.Interop
 
         [method: DllImport("crypt32.dll", CallingConvention = CallingConvention.Winapi, EntryPoint = "CryptBinaryToString", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static unsafe extern bool CryptBinaryToString
+        public static extern bool CryptBinaryToString
         (
             [param: In] byte[] pbBinary,
             [param: In, MarshalAs(UnmanagedType.U4)] uint cbBinary,
@@ -104,7 +104,7 @@ namespace AuthenticodeExaminer.Interop
 
         [method: DllImport("crypt32.dll", CallingConvention = CallingConvention.Winapi, EntryPoint = "CertNameToStr", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U4)]
-        public static unsafe extern uint CertNameToStr
+        public static extern uint CertNameToStr
         (
             [param: In, MarshalAs(UnmanagedType.U4)] EncodingType dwCertEncodingType,
             [param: In, MarshalAs(UnmanagedType.SysInt)] IntPtr pName,
@@ -276,6 +276,7 @@ namespace AuthenticodeExaminer.Interop
         NONE = 0
     }
 
+    [type: Flags]
     internal enum EncodingType : uint
     {
         PKCS_7_ASN_ENCODING = 0x10000,

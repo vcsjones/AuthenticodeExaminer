@@ -57,24 +57,26 @@ namespace AuthenticodeExaminer
         {
             get
             {
-                if (_timestampSignatures == null)
+                if (_timestampSignatures != null)
                 {
-                    var list = new List<TimestampSignature>();
-                    var timestamps = _cmsSignature.VisitAll(SignatureKind.AnyCounterSignature, false);
-                    foreach (var timestamp in timestamps)
-                    {
-                        switch (timestamp)
-                        {
-                            case AuthenticodeTimestampCmsSignature legacy:
-                                list.Add(new TimestampSignature.AuthenticodeTimestampSignature(legacy));
-                                break;
-                            case CmsSignature rfc3161 when rfc3161.Kind == SignatureKind.Rfc3161Timestamp:
-                                list.Add(new TimestampSignature.RFC3161TimestampSignature(rfc3161));
-                                break;
-                        }
-                    }
-                    Interlocked.CompareExchange(ref _timestampSignatures, list, null);
+                    return _timestampSignatures;
                 }
+
+                var list = new List<TimestampSignature>();
+                var timestamps = _cmsSignature.VisitAll(SignatureKind.AnyCounterSignature, false);
+                foreach (var timestamp in timestamps)
+                {
+                    switch (timestamp)
+                    {
+                        case AuthenticodeTimestampCmsSignature legacy:
+                            list.Add(new TimestampSignature.AuthenticodeTimestampSignature(legacy));
+                            break;
+                        case CmsSignature rfc3161 when rfc3161.Kind == SignatureKind.Rfc3161Timestamp:
+                            list.Add(new TimestampSignature.RFC3161TimestampSignature(rfc3161));
+                            break;
+                    }
+                }
+                Interlocked.CompareExchange(ref _timestampSignatures, list, null);
                 return _timestampSignatures;
             }
         }
@@ -87,19 +89,23 @@ namespace AuthenticodeExaminer
         {
             get
             {
-                if (_publisherInformation == null)
+                if (_publisherInformation != null)
                 {
-                    PublisherInformation? publisherInformation = null;
-                    foreach (var attribute in _cmsSignature.SignedAttributes)
-                    {
-                        if (attribute.Oid.Value == KnownOids.OpusInfo && attribute.Values.Count > 0)
-                        {
-                            publisherInformation = new PublisherInformation(attribute.Values[0]);
-                            break;
-                        }
-                    }
-                    Interlocked.CompareExchange(ref _publisherInformation, publisherInformation ?? new PublisherInformation(), null);
+                    return _publisherInformation;
                 }
+
+                PublisherInformation? publisherInformation = null;
+                foreach (var attribute in _cmsSignature.SignedAttributes)
+                {
+                    if (attribute.Oid.Value != KnownOids.OpusInfo || attribute.Values.Count <= 0)
+                    {
+                        continue;
+                    }
+
+                    publisherInformation = new PublisherInformation(attribute.Values[0]);
+                    break;
+                }
+                Interlocked.CompareExchange(ref _publisherInformation, publisherInformation ?? new PublisherInformation(), null);
                 return _publisherInformation;
             }
         }
@@ -156,11 +162,13 @@ namespace AuthenticodeExaminer
             {
                 foreach (var attribute in authenticodeCmsSignature.SignedAttributes)
                 {
-                    if (attribute.Oid.Value == KnownOids.SigningTime && attribute.Values.Count > 0)
+                    if (attribute.Oid.Value != KnownOids.SigningTime || attribute.Values.Count <= 0)
                     {
-                        TimestampDateTime = TimestampDecoding.DecodeAuthenticodeTimestamp(attribute.Values[0]);
-                        break;
+                        continue;
                     }
+
+                    TimestampDateTime = TimestampDecoding.DecodeAuthenticodeTimestamp(attribute.Values[0]);
+                    break;
                 }
             }
         }

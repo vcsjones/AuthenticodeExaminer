@@ -21,7 +21,7 @@ namespace AuthenticodeExaminer
         Oid? HashEncryptionAlgorithm { get; }
 
         /// <summary>
-        /// Provides a list of unsigned, or unathenticated, attributes in the current signature.
+        /// Provides a list of unsigned, or unauthenticated, attributes in the current signature.
         /// </summary>
         IReadOnlyList<CryptographicAttributeObject> UnsignedAttributes { get; }
 

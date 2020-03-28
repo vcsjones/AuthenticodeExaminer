@@ -58,6 +58,7 @@ namespace AuthenticodeExaminer.Interop
         WTD_UI_NOGOOD = 4,
     }
 
+    [type: Flags]
     internal enum WinTrustRevocationChecks : uint
     {
         WTD_REVOKE_NONE = 0,

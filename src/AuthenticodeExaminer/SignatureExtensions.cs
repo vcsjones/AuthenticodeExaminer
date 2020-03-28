@@ -18,7 +18,7 @@ namespace AuthenticodeExaminer
                 }
                 else if (deep)
                 {
-                    foreach (var nestVisit in nested.VisitAll(kind, deep))
+                    foreach (var nestVisit in nested.VisitAll(kind, true))
                     {
                         yield return nestVisit;
                     }
