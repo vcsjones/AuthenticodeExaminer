@@ -19,15 +19,14 @@ namespace AuthenticodeExaminer
         /// <returns>A collection of signatures in the file.</returns>
         public static IReadOnlyList<ICmsSignature> Extract(string filePath)
         {
-            CryptMsgSafeHandle message = CryptMsgSafeHandle.InvalidHandle;
             var result = Crypt32.CryptQueryObject(
                 CryptQueryObjectType.CERT_QUERY_OBJECT_FILE,
                 filePath,
                 CryptQueryContentFlagType.CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED_EMBED,
                 CryptQueryFormatFlagType.CERT_QUERY_FORMAT_FLAG_BINARY,
                 CryptQueryObjectFlags.NONE,
-                out var encodingType, out var contentType, out var formatType,
-                IntPtr.Zero, out message, IntPtr.Zero);
+                out _, out _, out _,
+                IntPtr.Zero, out var message, IntPtr.Zero);
             if (!result)
             {
                 var resultCode = Marshal.GetLastWin32Error();
@@ -49,7 +48,7 @@ namespace AuthenticodeExaminer
             }
         }
 
-        private static unsafe IReadOnlyList<ICmsSignature> GetSignatures(CryptMsgSafeHandle messageHandle)
+        private static IReadOnlyList<ICmsSignature> GetSignatures(CryptMsgSafeHandle messageHandle)
         {
             var countSize = 0u;
             if (!Crypt32.CryptMsgGetParam(messageHandle, CryptMsgParamType.CMSG_SIGNER_COUNT_PARAM, 0, LocalBufferSafeHandle.Zero, ref countSize))

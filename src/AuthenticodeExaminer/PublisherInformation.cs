@@ -69,18 +69,20 @@ namespace AuthenticodeExaminer
                 {
                     var info = Marshal.PtrToStructure<SPC_SP_OPUS_INFO>(structBuffer.DangerousGetHandle());
                     Description = info.pwszProgramName?.Trim();
-                    if (info.pMoreInfo != null)
+                    if (info.pMoreInfo == null) 
                     {
-                        var moreInfo = info.pMoreInfo;
-                        switch (moreInfo->dwLinkChoice)
-                        {
-                            case SpcLinkChoice.SPC_URL_LINK_CHOICE:
-                                UrlLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszUrl).Trim();
-                                break;
-                            case SpcLinkChoice.SPC_FILE_LINK_CHOICE:
-                                FileLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszFile).Trim();
-                                break;
-                        }
+                        return;
+                    }
+
+                    var moreInfo = info.pMoreInfo;
+                    switch (moreInfo->dwLinkChoice)
+                    {
+                        case SpcLinkChoice.SPC_URL_LINK_CHOICE:
+                            UrlLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszUrl)?.Trim();
+                            break;
+                        case SpcLinkChoice.SPC_FILE_LINK_CHOICE:
+                            FileLink = Marshal.PtrToStringUni(moreInfo->linkUnion.pwszFile)?.Trim();
+                            break;
                     }
                 }
             }

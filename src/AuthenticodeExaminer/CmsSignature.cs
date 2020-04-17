@@ -47,7 +47,7 @@ namespace AuthenticodeExaminer
 
         internal byte[] ReadBlob(CRYPTOAPI_BLOB blob) => blob.AsSpan().ToArray();
 
-        internal unsafe List<CryptographicAttributeObject> ReadAttributes(CRYPT_ATTRIBUTES attributes)
+        internal List<CryptographicAttributeObject> ReadAttributes(CRYPT_ATTRIBUTES attributes)
         {
             var collection = new List<CryptographicAttributeObject>();
             var attributeSize = Marshal.SizeOf<CRYPT_ATTRIBUTE>();
@@ -115,17 +115,16 @@ namespace AuthenticodeExaminer
                 {
                     continue;
                 }
-                using (var certLocalBuffer = LocalBufferSafeHandle.Alloc(certSize))
+
+                using var certLocalBuffer = LocalBufferSafeHandle.Alloc(certSize);
+                if (!Crypt32.CryptMsgGetParam(handle, CryptMsgParamType.CMSG_CERT_PARAM, i, certLocalBuffer, ref certSize))
                 {
-                    if (!Crypt32.CryptMsgGetParam(handle, CryptMsgParamType.CMSG_CERT_PARAM, i, certLocalBuffer, ref certSize))
-                    {
-                        continue;
-                    }
-                    var data = new byte[certSize];
-                    Marshal.Copy(certLocalBuffer.DangerousGetHandle(), data, 0, data.Length);
-                    var cert = new X509Certificate2(data);
-                    certs.Add(cert);
+                    continue;
                 }
+                var data = new byte[certSize];
+                Marshal.Copy(certLocalBuffer.DangerousGetHandle(), data, 0, data.Length);
+                var cert = new X509Certificate2(data);
+                certs.Add(cert);
             }
             return certs;
         }
@@ -239,9 +238,9 @@ namespace AuthenticodeExaminer
                     CryptQueryContentFlagType.CERT_QUERY_CONTENT_FLAG_ALL,
                     CryptQueryFormatFlagType.CERT_QUERY_FORMAT_FLAG_BINARY,
                     CryptQueryObjectFlags.NONE,
-                    out var encodingType,
-                    out var contentType,
-                    out var formatType,
+                    out _,
+                    out _,
+                    out _,
                     IntPtr.Zero,
                     out var msgHandle,
                     IntPtr.Zero);
@@ -336,10 +335,9 @@ namespace AuthenticodeExaminer
             var allZeroSerial = IsBlobAllZero(serialNumber);
             if (allZeroSerial)
             {
-                var x500Name = LocalBufferSafeHandle.Zero;
                 var flags = EncodingType.PKCS_7_ASN_ENCODING | EncodingType.X509_ASN_ENCODING;
                 uint size = 0;
-                if (Crypt32.CryptDecodeObjectEx(flags, (IntPtr)7, issuer.pbData, issuer.cbData, CryptDecodeFlags.CRYPT_DECODE_ALLOC_FLAG, IntPtr.Zero, out x500Name, ref size))
+                if (Crypt32.CryptDecodeObjectEx(flags, (IntPtr)7, issuer.pbData, issuer.cbData, CryptDecodeFlags.CRYPT_DECODE_ALLOC_FLAG, IntPtr.Zero, out var x500Name, ref size))
                 {
                     using (x500Name)
                     {

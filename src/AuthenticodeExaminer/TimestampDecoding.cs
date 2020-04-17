@@ -33,7 +33,7 @@ namespace AuthenticodeExaminer
                 using (structBuffer)
                 {
                     var time = Marshal.PtrToStructure<FILETIME>(structBuffer.DangerousGetHandle());
-                    long fileTimeVal = ((long)time.dwHighDateTime) << 32 | (uint)time.dwLowDateTime;
+                    long fileTimeVal = (long)time.dwHighDateTime << 32 | (uint)time.dwLowDateTime;
                     return DateTimeOffset.FromFileTime(fileTimeVal);
                 }
             }
