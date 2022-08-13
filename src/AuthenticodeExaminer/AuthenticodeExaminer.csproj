@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net46;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Authors>Kevin Jones</Authors>
     <PackageTags>authenticode;codesign</PackageTags>
@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.3" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.1" />
   </ItemGroup>
   
 </Project>
