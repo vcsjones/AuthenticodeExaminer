@@ -1,13 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\AuthenticodeExaminer\AuthenticodeExaminer.csproj" />
+    <ProjectReference Include="..\src\AuthenticodeExaminer\AuthenticodeExaminerForNet6.0.csproj" />
   </ItemGroup>
 
 </Project>
