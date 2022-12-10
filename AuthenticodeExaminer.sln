@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B9EB8146-D425-4D6C-9F1D-F911B842ABFA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticodeExaminer", "src\AuthenticodeExaminer\AuthenticodeExaminer.csproj", "{3984B7D2-C891-4B49-8FFC-A9705C81ED67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticodeExaminerForNet6.0", "src\AuthenticodeExaminer\AuthenticodeExaminerForNet6.0.csproj", "{3984B7D2-C891-4B49-8FFC-A9705C81ED67}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sample", "sample\sample.csproj", "{90734C54-24C6-4A5A-A57F-76F73D1CB57D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{073FEB0A-2B0C-4643-A7D8-86CF408312F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthenticodeExaminer.Tests", "test\AuthenticodeExaminer.Tests\AuthenticodeExaminer.Tests.csproj", "{7705C156-0A1F-4F39-AF96-C06F07D63A52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticodeExaminer.Tests", "test\AuthenticodeExaminer.Tests\AuthenticodeExaminer.Tests.csproj", "{7705C156-0A1F-4F39-AF96-C06F07D63A52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
