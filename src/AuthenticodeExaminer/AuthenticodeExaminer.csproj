@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net46;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Authors>Kevin Jones</Authors>
     <PackageTags>authenticode;codesign</PackageTags>
     <PackageProjectUrl>https://github.com/vcsjones/AuthenticodeExaminer</PackageProjectUrl>
-    <PackageVersion>0.3.0</PackageVersion>
+    <Version>0.4.0</Version>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -16,14 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.7.0" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.7.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="8.0.1" />
   </ItemGroup>
   <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
     <Reference Include="System.Security" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Memory" Version="4.5.3" />
+    <PackageReference Include="System.Memory" Version="4.6.0" />
   </ItemGroup>
   
 </Project>
