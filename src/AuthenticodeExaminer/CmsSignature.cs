@@ -74,7 +74,7 @@ namespace AuthenticodeExaminer
                 return null;
             }
             var bySerial = byDN.Find(X509FindType.FindBySerialNumber, issuerSerial.SerialNumber, false);
-            if (bySerial.Count != 1)
+            if (bySerial.Count == 0)
             {
                 return null;
             }
